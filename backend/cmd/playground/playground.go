@@ -20,7 +20,7 @@ func main() {
 	mux.HandleFunc("/create-player", handlers.CreatePlayerHandler)
 	mux.HandleFunc("/create-game", handlers.CreateGameHandler)
 	mux.HandleFunc("/join-game", handlers.JoinGameHandler)
-	// mux.HandleFunc("/submit-reply", handlers.SumbitReplyGameHandler)
+	mux.HandleFunc("/round-question", handlers.RoundQuestionHandler)
 	loggedMux := logRequest(mux)
 
 	slog.Info("Server is starting on port 8888...")

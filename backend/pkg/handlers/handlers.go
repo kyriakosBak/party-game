@@ -9,6 +9,7 @@ import (
 )
 
 const playerIdCookie string = "player-id"
+const gameIdCookie string = "game-id"
 const questionIdCookie string = "question-id"
 
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,9 +83,15 @@ func CreateGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
-	tmpl.Execute(w, game)
-	slog.Debug("Serving game template.", "template", tmpl)
+	w.Header().Set("HX-Redirect", "/round-question")
+	http.SetCookie(w, &http.Cookie{
+		Name:  gameIdCookie,
+		Value: game.Id,
+		Path:  "/",
+	})
+	slog.Debug("Redirecting to /round-question")
+	w.Write(nil)
+	return
 }
 
 func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +105,7 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error. Check server logs.", http.StatusInternalServerError)
 		return
 	}
+
 	password := r.FormValue("game-password")
 	if password == "" {
 		slog.Error("Empty password in create game request", "Form", r.PostForm)
@@ -117,13 +125,16 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
-	tmpl.Execute(w, game)
-	slog.Debug("Serving game template.", "template", tmpl)
-}
+	w.Header().Set("HX-Redirect", "/round-question")
+	http.SetCookie(w, &http.Cookie{
+		Name:  gameIdCookie,
+		Value: game.Id,
+		Path:  "/",
+	})
 
-func SumbitReplyGameHandler(w http.ResponseWriter, r *http.Request) {
-
+	slog.Debug("Redirecting to /round-question")
+	w.Write(nil)
+	return
 }
 
 func IsPost(r *http.Request) bool {
@@ -135,10 +146,4 @@ func IsPost(r *http.Request) bool {
 		slog.Debug("Request is not POST.", "RemoteAddress", r.RemoteAddr, "Method", r.Method, "URL", r.URL)
 	}
 	return false
-}
-
-func ServeGame(w http.ResponseWriter, r *http.Request, game gamelogic.Game) {
-	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
-	tmpl.Execute(w, game)
-	slog.Debug("Serving game template.", "template", tmpl)
 }

@@ -24,6 +24,14 @@ func CreateGame(password string) (Game, bool) {
 		Started:    false,
 		IsComplete: false,
 	}
+
+	// TODO: Remove dummy values
+	dummyPlayer := Player{uuid.New().String(), "dummy player", 0}
+	round := Round{uuid.New().String(), "q1", []Answer{
+		{"asfad", "dummy answer", dummyPlayer, 0},
+	}}
+	game.Rounds = append(game.Rounds, round)
+
 	games[game.Id] = game
 	slog.Info("Created game", "game", game)
 	return game, true
@@ -52,6 +60,13 @@ func JoinGame(password string, playerId string) (Game, error) {
 	game.AddPlayerToGame(player)
 
 	return game, nil
+}
+
+func GetLatestRound(gameId string) Round {
+	game := games[gameId]
+	slog.Debug("game found", "game", game)
+	currentRound := game.Rounds[len(game.Rounds)-1]
+	return currentRound
 }
 
 func (g *Game) AddPlayerToGame(player Player) {
@@ -90,6 +105,7 @@ type Round struct {
 
 type Answer struct {
 	Id    string
+	Text  string
 	Owner Player
 	Votes int
 }
