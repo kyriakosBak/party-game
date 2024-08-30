@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/htmx.org@2.0.2"
+        integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
+        crossorigin="anonymous"></script>
+    <title>Party Game</title>
+    <style>
+        .option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option.selected {
+            background-color: #cfe3ff;
+        }
+    </style>
+</head>
+
+<body>
+    <label id="question">Question</label>
+    <br>
+    <div id="choices">
+        {{ range . }}
+        <div class="option" hx-get="/select/option/{{.ID}}" hx-target="#selected-option" hx-swap="innerHTML">
+            {{ .Label }}
+        </div>
+        {{ end }}
+    </div>
+    <br>
+    <button id="submit-button" hx-post="/submit-choice" hx-include="#selected-choice">Submit</button>
+
+    <!-- hidden element to ask as a temp save for our selected value -->
+    <div id="selected-choice" style="margin-top: 20px;"></div>
+
+    <script>
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function () {
+                // Remove 'selected' class from all options
+                document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                // Add 'selected' class to clicked option
+                this.classList.add('selected');
+                // Enable the submit button
+                document.getElementById('submit-button').disabled = false;
+            });
+        });
+    </script>
+</body>
+
+</html>

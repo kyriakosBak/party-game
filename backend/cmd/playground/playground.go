@@ -20,10 +20,11 @@ func main() {
 	mux.HandleFunc("/create-player", handlers.CreatePlayerHandler)
 	mux.HandleFunc("/create-game", handlers.CreateGameHandler)
 	mux.HandleFunc("/join-game", handlers.JoinGameHandler)
+	// mux.HandleFunc("/submit-reply", handlers.SumbitReplyGameHandler)
 	loggedMux := logRequest(mux)
 
-	slog.Info("Server is starting on port 8080...")
-	if err := http.ListenAndServe(":8080", loggedMux); err != nil {
+	slog.Info("Server is starting on port 8888...")
+	if err := http.ListenAndServe(":8888", loggedMux); err != nil {
 		slog.Error("error", err)
 	}
 

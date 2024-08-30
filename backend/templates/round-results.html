@@ -27,15 +27,20 @@
 </head>
 
 <body>
-    <div id="choices">
-        <div class="option" hx-get="select/option/1" hx-target="#selected-option" hx-swap="innerHTML">Option 1</div>
-        <div class="option" hx-get="select/option/2" hx-target="#selected-option" hx-swap="innerHTML">Option 2</div>
-        <div class="option" hx-get="select/option/3" hx-target="#selected-option" hx-swap="innerHTML">Option 3</div>
+    <div id="question">Question</div>
+    <br>
+    <div id="answers">
+        <input type="text" id="player-answer" name="player-answer">
+        <!-- <ul>
+            <div class="option" hx-get="select/option/1" hx-target="#answers" hx-swap="innerHTML">Option 1</div>
+            <div class="option" hx-get="select/option/2" hx-target="#answers" hx-swap="innerHTML">Option 2</div>
+            <div class="option" hx-get="select/option/3" hx-target="#answers" hx-swap="innerHTML">Option 3</div>
+        </ul> -->
     </div>
 
     <div id="selected-option" style="margin-top: 20px;"></div>
 
-    <button id="submit-button" hx-post="/submit" hx-include="#selected-option" disabled>Send</button>
+    <button id="submit-button" hx-post="/submit" hx-include="#answers" >Submit</button>
 
     <script>
         document.querySelectorAll('.option').forEach(option => {

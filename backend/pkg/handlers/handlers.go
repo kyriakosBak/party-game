@@ -8,6 +8,9 @@ import (
 	"party-game/pkg/gamelogic"
 )
 
+const playerIdCookie string = "player-id"
+const questionIdCookie string = "question-id"
+
 func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/home.html"))
 	tmpl.Execute(w, nil)
@@ -40,7 +43,7 @@ func CreatePlayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Set the player ID in a cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:  "player-id",
+		Name:  playerIdCookie,
 		Value: player.Id,
 		Path:  "/",
 	})
@@ -67,7 +70,7 @@ func CreateGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := r.Cookie("player-id")
+	_, err := r.Cookie(playerIdCookie)
 	if err != nil {
 		http.Error(w, "Player not identified. Make sure you have created one.", http.StatusForbidden)
 		return
@@ -79,7 +82,7 @@ func CreateGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/game.html"))
+	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
 	tmpl.Execute(w, game)
 	slog.Debug("Serving game template.", "template", tmpl)
 }
@@ -102,7 +105,7 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerId, err := r.Cookie("player-id")
+	playerId, err := r.Cookie(playerIdCookie)
 	if err != nil {
 		http.Error(w, "Player not identified. Make sure you have created one.", http.StatusForbidden)
 		return
@@ -114,9 +117,13 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/game.html"))
+	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
 	tmpl.Execute(w, game)
 	slog.Debug("Serving game template.", "template", tmpl)
+}
+
+func SumbitReplyGameHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func IsPost(r *http.Request) bool {
@@ -128,4 +135,10 @@ func IsPost(r *http.Request) bool {
 		slog.Debug("Request is not POST.", "RemoteAddress", r.RemoteAddr, "Method", r.Method, "URL", r.URL)
 	}
 	return false
+}
+
+func ServeGame(w http.ResponseWriter, r *http.Request, game gamelogic.Game) {
+	tmpl := template.Must(template.ParseFiles("templates/round-question.html"))
+	tmpl.Execute(w, game)
+	slog.Debug("Serving game template.", "template", tmpl)
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/htmx.org@2.0.2"
+        integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
+        crossorigin="anonymous"></script>
+    <title>Party Game</title>
+</head>
+
+<body>
+    <label id="question"><{{ .Id }}</label>
+    <br>
+    <label id="question">Question</label>
+    <br>
+    <br>
+    <input type="text" id="player-reply" name="player-reply">
+    <br>
+    <br>
+    <button id="submit-button" hx-post="/submit-reply" hx-include="#player-reply">Submit</button>
+</body>
+
+</html>
