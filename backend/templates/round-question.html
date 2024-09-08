@@ -10,13 +10,15 @@
 </head>
 
 <body>
-    <label id="question">{{ .Question }}</label>
+    <button onclick="window.location.href='/home';">Home</button>
+    <p></p>
+    <label id="question">{{.Question}}</label>
     <br>
     <br>
-    <input type="text" id="player-reply" name="player-reply">
+    <input type="text" id="player-answer" name="player-answer">
     <br>
     <br>
-    <button id="submit-button" hx-post="/submit-reply" hx-include="#player-reply">Submit</button>
+    <button id="submit-button" hx-post="/submit-answer" hx-include="#player-answer">Submit</button>
 </body>
 
 </html>

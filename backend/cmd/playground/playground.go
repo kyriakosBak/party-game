@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,15 +13,17 @@ func main() {
 	opts := &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, opts))
+	file, err := os.Create("playground.log")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	logger := slog.New(slog.NewJSONHandler(io.MultiWriter(file, os.Stdout), opts))
 	slog.SetDefault(logger)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlers.HomePageHandler)
-	mux.HandleFunc("/create-player", handlers.CreatePlayerHandler)
-	mux.HandleFunc("/create-game", handlers.CreateGameHandler)
-	mux.HandleFunc("/join-game", handlers.JoinGameHandler)
-	mux.HandleFunc("/round-question", handlers.RoundQuestionHandler)
+	handlers.AddHandlers(mux)
 	loggedMux := logRequest(mux)
 
 	slog.Info("Server is starting on port 8888...")
@@ -33,7 +36,10 @@ func main() {
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		slog.Debug("Received http request", "RemoteAddress", r.RemoteAddr, "Method", r.Method, "URL", r.URL, "Body", r.Body, "PostForm", r.PostForm)
+		if r.Method == "POST" {
+			r.ParseForm()
+		}
+		slog.Info("Received http request", "RemoteAddress", r.RemoteAddr, "Method", r.Method, "URL", r.URL, "Body", r.Body, "PostForm", r.PostForm)
 		handler.ServeHTTP(w, r)
 	})
 }
