@@ -3,6 +3,7 @@ package gamelogic
 import (
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -65,6 +66,7 @@ func CreateNewRound(gameId string) {
 	round.Answers = []Answer{}
 	game.Rounds = append(game.Rounds, round)
 	games[gameId] = game
+	slog.Debug("Created new round", "game", game)
 }
 
 func AllPlayerAnswered(gameId string, roundId string) bool {
@@ -81,7 +83,7 @@ func AllPlayerAnswered(gameId string, roundId string) bool {
 	return false
 }
 
-func AllPlayerSelectedChoice(gameId string, roundId string) bool {
+func AllPlayersSelectedChoice(gameId string, roundId string) bool {
 	game := games[gameId]
 
 	for _, r := range game.Rounds {
@@ -95,30 +97,42 @@ func AllPlayerSelectedChoice(gameId string, roundId string) bool {
 	return false
 }
 
-// TODO: Not used for now
+func AllPlayersReady(gameId string) bool {
+	game := games[gameId]
+	slog.Debug("Checking all players ready")
+	for _, p := range game.Players {
+		if !p.PlayerReady {
+			return false
+		}
+	}
+	return true
+}
+
 func PlayerReady(gameId string, playerId string) {
 	game := games[gameId]
+	allPlayersReady := true
 	for i := range game.Players {
 		p := &game.Players[i]
 		if p.Id == playerId {
 			p.PlayerReady = true
 			slog.Info("Player is ready", "player", p)
-			return
+		}
+		if !p.PlayerReady {
+			allPlayersReady = false
 		}
 	}
-	slog.Error("Could not find player", "playerId", playerId)
-}
 
-func AddNewRound(gameId string) {
-	game := games[gameId]
-	round := Round{
-		Id:          uuid.New().String(),
-		Question:    GetRandomQuestion(),
-		Answers:     []Answer{},
-		ChoiceCount: 0}
-	game.Rounds = append(game.Rounds, round)
-	games[gameId] = game
-	slog.Debug("Added round to game.", "round", round, "game", game)
+	// if all players are ready start a  new round
+	if allPlayersReady {
+		slog.Debug("All players ready", "players", game.Players)
+		CreateNewRound(gameId)
+		for i := range game.Players {
+			p := &game.Players[i]
+			p.PlayerReady = false
+		}
+	} else {
+		slog.Debug("Not all players ready", "players", game.Players)
+	}
 }
 
 func GetLatestRound(gameId string) (Round, error) {

@@ -156,7 +156,7 @@ func SubmitChoiceHandler(w http.ResponseWriter, r *http.Request) {
 	controlTime := time.Now()
 	for {
 		time.Sleep(time.Second)
-		if gamelogic.AllPlayerSelectedChoice(gameId.Value, roundId.Value) {
+		if gamelogic.AllPlayersSelectedChoice(gameId.Value, roundId.Value) {
 			break
 		}
 		if time.Since(controlTime) > timeoutTime {
@@ -211,5 +211,26 @@ func NewRoundReady(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gamelogic.AddNewRound(gameId.Value)
+	playerId, err := r.Cookie(playerIdCookie)
+	if err != nil {
+		http.Error(w, "Could not find player id cookie.", http.StatusBadRequest)
+		return
+	}
+
+	gamelogic.PlayerReady(gameId.Value, playerId.Value)
+
+	controlTime := time.Now()
+	for {
+		time.Sleep(time.Second)
+		if gamelogic.AllPlayersReady(gameId.Value) {
+			break
+		}
+		if time.Since(controlTime) > timeoutTime {
+			break
+		}
+	}
+
+	w.Header().Set("HX-Redirect", "/round-question")
+	w.Write(nil)
+	slog.Debug("Redirect to /round-question")
 }
