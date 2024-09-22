@@ -163,10 +163,10 @@ func AddAnswer(gameId string, playerId string, roundId string, answerText string
 			continue
 		}
 		answer := Answer{
-			Id:    uuid.New().String(),
-			Text:  answerText,
-			Owner: player,
-			Votes: 0}
+			Id:     uuid.New().String(),
+			Text:   answerText,
+			Owner:  player,
+			Voters: []Player{}}
 
 		// If player answer exists, overwrite it
 		updatedAnswer := false
@@ -200,8 +200,10 @@ func AddChoice(gameId string, playerId string, roundId string, choiceId string) 
 
 	for i, r := range game.Rounds {
 		if r.Id == roundId {
-			for _, a := range r.Answers {
+			for j := range r.Answers {
+				a := &r.Answers[j]
 				if a.Id == choiceId {
+					a.Voters = append(a.Voters, player)
 					game.Score[a.Owner.Id] += 1
 					game.Rounds[i].ChoiceCount++
 					slog.Debug("Added choice", "game", game, "player", player, "roundId", r.Id, "answer", a)
@@ -268,8 +270,8 @@ type Round struct {
 }
 
 type Answer struct {
-	Id    string
-	Text  string
-	Owner Player
-	Votes int
+	Id     string
+	Text   string
+	Owner  Player
+	Voters []Player
 }
