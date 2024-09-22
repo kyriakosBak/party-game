@@ -3,7 +3,6 @@ package gamelogic
 import (
 	"errors"
 	"log/slog"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -126,10 +125,10 @@ func PlayerReady(gameId string, playerId string) {
 	if allPlayersReady {
 		slog.Debug("All players ready", "players", game.Players)
 		CreateNewRound(gameId)
-		for i := range game.Players {
-			p := &game.Players[i]
-			p.PlayerReady = false
-		}
+		// for i := range game.Players {
+		// 	p := &game.Players[i]
+		// 	p.PlayerReady = false
+		// }
 	} else {
 		slog.Debug("Not all players ready", "players", game.Players)
 	}
@@ -160,29 +159,30 @@ func AddAnswer(gameId string, playerId string, roundId string, answerText string
 
 	for i := range game.Rounds {
 		r := &game.Rounds[i]
-		if r.Id == roundId {
-			answer := Answer{
-				Id:    uuid.New().String(),
-				Text:  answerText,
-				Owner: player,
-				Votes: 0}
-
-			// If player answer exists, overwrite it
-			updatedAnswer := false
-			for j, a := range r.Answers {
-				if a.Owner.Id == playerId {
-					r.Answers[j] = answer
-					updatedAnswer = true
-				}
-			}
-
-			if !updatedAnswer {
-				game.Rounds[i].Answers = append(game.Rounds[i].Answers, answer)
-			}
-
-			slog.Debug("Adding answer", "game", game, "player", player, "roundId", r.Id, "answer", answer)
-			return nil
+		if r.Id != roundId {
+			continue
 		}
+		answer := Answer{
+			Id:    uuid.New().String(),
+			Text:  answerText,
+			Owner: player,
+			Votes: 0}
+
+		// If player answer exists, overwrite it
+		updatedAnswer := false
+		for j, a := range r.Answers {
+			if a.Owner.Id == playerId {
+				r.Answers[j] = answer
+				updatedAnswer = true
+			}
+		}
+
+		if !updatedAnswer {
+			game.Rounds[i].Answers = append(game.Rounds[i].Answers, answer)
+		}
+
+		slog.Debug("Adding answer", "game", game, "player", player, "roundId", r.Id, "answer", answer)
+		return nil
 	}
 	return errors.New("Could not add answer")
 }
@@ -206,6 +206,9 @@ func AddChoice(gameId string, playerId string, roundId string, choiceId string) 
 					game.Rounds[i].ChoiceCount++
 					slog.Debug("Added choice", "game", game, "player", player, "roundId", r.Id, "answer", a)
 					slog.Info("Score update", "score", game.Score)
+					// Setting player ready in order to be able to check when starting next round
+					player.PlayerReady = false
+					players[playerId] = player
 					return nil
 				}
 			}
