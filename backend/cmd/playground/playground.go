@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"party-game/pkg/gamelogic"
 	"party-game/pkg/handlers"
 )
 
@@ -30,8 +29,6 @@ func main() {
 	if err := http.ListenAndServe(":8888", loggedMux); err != nil {
 		slog.Error("error", err)
 	}
-
-	_, _ = gamelogic.CreateGame("asdf")
 }
 
 func logRequest(handler http.Handler) http.Handler {

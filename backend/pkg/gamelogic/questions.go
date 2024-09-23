@@ -3,20 +3,21 @@ package gamelogic
 import (
 	"log/slog"
 	"math/rand"
+	"strings"
 )
 
 var shuffledQuestions []string
+var playerNamePlaceholder string = "[player's name]"
 
-func GetRandomQuestion() string {
+func GetRandomQuestion(playerName string) string {
 	if shuffledQuestions == nil {
 		slog.Debug("Shuffling questions")
 		shuffledQuestions = shuffle(questions)
 	}
 
-	slog.Debug("Size before shuffling " + string(len(shuffledQuestions)))
 	result := shuffledQuestions[len(shuffledQuestions)-1]
 	shuffledQuestions = shuffledQuestions[:len(shuffledQuestions)-1]
-	slog.Debug("Size after shuffling " + string(len(shuffledQuestions)))
+	result = strings.Replace(result, playerNamePlaceholder, playerName, 1)
 
 	return result
 }

@@ -10,15 +10,18 @@ import (
 var games map[string]Game = make(map[string]Game)
 var players map[string]Player = make(map[string]Player)
 
-func CreateGame(password string) (Game, bool) {
+func CreateGame(password string, playerId string) (Game, bool) {
 	for _, v := range games {
 		if v.Password == password && !v.IsComplete {
 			return Game{}, false
 		}
 	}
+
+	player := GetPlayer(playerId)
+
 	game := Game{
 		Id:         uuid.New().String(),
-		Players:    []Player{},
+		Players:    []Player{player},
 		Rounds:     []Round{},
 		Password:   password,
 		Started:    false,
@@ -61,7 +64,7 @@ func CreateNewRound(gameId string) {
 	game := games[gameId]
 	round := Round{}
 	round.Id = uuid.New().String()
-	round.Question = GetRandomQuestion()
+	round.Question = GetRandomQuestion(game.GetNextPlayerName())
 	round.Answers = []Answer{}
 	game.Rounds = append(game.Rounds, round)
 	games[gameId] = game
@@ -163,10 +166,10 @@ func AddAnswer(gameId string, playerId string, roundId string, answerText string
 			continue
 		}
 		answer := Answer{
-			Id:    uuid.New().String(),
-			Text:  answerText,
-			Owner: player,
-			Votes: 0}
+			Id:     uuid.New().String(),
+			Text:   answerText,
+			Owner:  player,
+			Voters: []Player{}}
 
 		// If player answer exists, overwrite it
 		updatedAnswer := false
@@ -200,8 +203,10 @@ func AddChoice(gameId string, playerId string, roundId string, choiceId string) 
 
 	for i, r := range game.Rounds {
 		if r.Id == roundId {
-			for _, a := range r.Answers {
+			for j := range r.Answers {
+				a := &r.Answers[j]
 				if a.Id == choiceId {
+					a.Voters = append(a.Voters, player)
 					game.Score[a.Owner.Id] += 1
 					game.Rounds[i].ChoiceCount++
 					slog.Debug("Added choice", "game", game, "player", player, "roundId", r.Id, "answer", a)
@@ -245,13 +250,22 @@ func CreatePlayer(playerName string) (Player, bool) {
 }
 
 type Game struct {
-	Id         string
-	Players    []Player
-	Rounds     []Round
-	Password   string
-	Started    bool
-	IsComplete bool
-	Score      map[string]int // map[playerId]points
+	Id              string
+	Players         []Player
+	Rounds          []Round
+	Password        string
+	Started         bool
+	IsComplete      bool
+	Score           map[string]int // map[playerId]points
+	NextPlayerIndex int
+}
+
+func (g *Game) GetNextPlayerName() string {
+	slog.Debug("getting next player name", "index", g.NextPlayerIndex, "players", len(g.Players),
+		"modulo", g.NextPlayerIndex%len(g.Players))
+	index := g.NextPlayerIndex % len(g.Players)
+	g.NextPlayerIndex++
+	return g.Players[index].Name
 }
 
 type Player struct {
@@ -268,8 +282,8 @@ type Round struct {
 }
 
 type Answer struct {
-	Id    string
-	Text  string
-	Owner Player
-	Votes int
+	Id     string
+	Text   string
+	Owner  Player
+	Voters []Player
 }

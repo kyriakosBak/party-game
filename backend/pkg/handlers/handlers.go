@@ -100,15 +100,9 @@ func CreateGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	game, created := gamelogic.CreateGame(password)
+	game, created := gamelogic.CreateGame(password, player.Value)
 	if !created {
 		http.Error(w, "Could not create game. Probably a game with the same password is already running", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = gamelogic.JoinGame(password, player.Value)
-	if err != nil {
-		http.Error(w, "Could not join game.", http.StatusBadRequest)
 		return
 	}
 
