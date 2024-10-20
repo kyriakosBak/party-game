@@ -3,6 +3,7 @@ package gamelogic
 import (
 	"errors"
 	"log/slog"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -110,8 +111,11 @@ func AllPlayersReady(gameId string) bool {
 	return true
 }
 
+var playerReadyLock sync.Mutex
+
 func PlayerReady(gameId string, playerId string) {
 	game := games[gameId]
+	playerReadyLock.Lock()
 	allPlayersReady := true
 	for i := range game.Players {
 		p := &game.Players[i]
@@ -131,6 +135,7 @@ func PlayerReady(gameId string, playerId string) {
 	} else {
 		slog.Debug("Not all players ready", "players", game.Players)
 	}
+	playerReadyLock.Unlock()
 }
 
 func GetLatestRound(gameId string) (Round, error) {
