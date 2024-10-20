@@ -128,10 +128,6 @@ func PlayerReady(gameId string, playerId string) {
 	if allPlayersReady {
 		slog.Debug("All players ready", "players", game.Players)
 		CreateNewRound(gameId)
-		// for i := range game.Players {
-		// 	p := &game.Players[i]
-		// 	p.PlayerReady = false
-		// }
 	} else {
 		slog.Debug("Not all players ready", "players", game.Players)
 	}
