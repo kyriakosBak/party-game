@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/Graylog2/go-gelf/gelf"
+	sloggraylog "github.com/samber/slog-graylog/v2"
 	"io"
 	"log/slog"
 	"net/http"
@@ -9,16 +11,22 @@ import (
 )
 
 func main() {
-	opts := &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}
-	file, err := os.Create("playground.log")
+	var logger *slog.Logger
+	gelfWriter, err := gelf.NewWriter("localhost:12201")
 	if err != nil {
-		panic(err)
+		opts := &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}
+		file, err := os.Create("playground.log")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		logger = slog.New(slog.NewJSONHandler(io.MultiWriter(file, os.Stdout), opts))
+	} else {
+		gelfWriter.CompressionType = gelf.CompressNone
+		logger = slog.New(sloggraylog.Option{Level: slog.LevelDebug, Writer: gelfWriter}.NewGraylogHandler())
 	}
-	defer file.Close()
-
-	logger := slog.New(slog.NewJSONHandler(io.MultiWriter(file, os.Stdout), opts))
 	slog.SetDefault(logger)
 
 	mux := http.NewServeMux()

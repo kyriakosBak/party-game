@@ -1,4 +1,14 @@
+github.com/Graylog2/go-gelf v0.0.0-20170811154226-7ebf4f536d8f h1:xMWj7GzE4gCkm8e+661/GJHDXr4h7/jt4kM1Vvr9c5k=
+github.com/Graylog2/go-gelf v0.0.0-20170811154226-7ebf4f536d8f/go.mod h1:fBaQWrftOD5CrVCUfoYGHs4X4VViTuGOXA8WloCjTY0=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+github.com/samber/lo v1.44.0 h1:5il56KxRE+GHsm1IR+sZ/6J42NODigFiqCWpSc2dybA=
+github.com/samber/lo v1.44.0/go.mod h1:RmDH9Ct32Qy3gduHQuKJ3gW1fMHAnE/fAzQuf6He5cU=
+github.com/samber/slog-common v0.17.0 h1:HdRnk7QQTa9ByHlLPK3llCBo8ZSX3F/ZyeqVI5dfMtI=
+github.com/samber/slog-common v0.17.0/go.mod h1:mZSJhinB4aqHziR0SKPqpVZjJ0JO35JfH+dDIWqaCBk=
+github.com/samber/slog-graylog/v2 v2.7.0 h1:28jMsQ+wt/m4ybPWZRjVUIHN/j9PLbJK67Nez+OrUkQ=
+github.com/samber/slog-graylog/v2 v2.7.0/go.mod h1:HP/O4JXPM0+Es8HIfLYVn44nR93G0UgJ4apkSgXEpic=
+golang.org/x/text v0.16.0 h1:a94ExnEXNtEwYLGJSIUxnWoxoRz/ZcCsV63ROupILh4=
+golang.org/x/text v0.16.0/go.mod h1:GhwF1Be+LQoKShO3cGOHzqOgRrGaYc9AvblQOmPVHnI=
